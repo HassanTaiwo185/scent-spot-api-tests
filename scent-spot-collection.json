@@ -1,0 +1,2823 @@
+{
+  "info": {
+    "_postman_id": "ba7d1852-8809-4101-bc87-8debeae34e29",
+    "name": "Scent Spot API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48028782",
+    "_collection_link": "https://go.postman.co/collection/48028782-ba7d1852-8809-4101-bc87-8debeae34e29?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "item": [
+        {
+          "name": "AUTH-TC-001 | Register valid user [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// AUTH-TC-001 | Register valid user",
+                  "",
+                  "// 1. Status code is 201",
+                  "pm.test(\"AUTH-TC-001 | Status is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// 2. Response is JSON",
+                  "pm.test(\"AUTH-TC-001 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// 3. Token is present",
+                  "pm.test(\"AUTH-TC-001 | Response contains token\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"token\");",
+                  "    pm.expect(body.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// 4. Password not returned",
+                  "pm.test(\"AUTH-TC-001 | Password is NOT in response\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"password\");",
+                  "});",
+                  "",
+                  "// 5. Token has valid JWT format",
+                  "pm.test(\"AUTH-TC-001 | Token has valid JWT format\", function () {",
+                  "    const body = pm.response.json();",
+                  "    const parts = body.token.split(\".\");",
+                  "    pm.expect(parts.length).to.equal(3);",
+                  "});",
+                  "",
+                  "// 6. Save token to collection variable",
+                  "const body = pm.response.json();",
+                  "if (body.token) {",
+                  "    pm.environment.set(\"authToken\", body.token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser_test\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Secure@1234\",\n  \"phone\": \"08099998888\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-002 | Login with correct credentials [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// AUTH-TC-002 | Login with correct credentials",
+                  "",
+                  "pm.test(\"AUTH-TC-002 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-002 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-002 | Response contains token\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"token\");",
+                  "    pm.expect(body.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-002 | Password is NOT in response\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"password\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-002 | Token has valid JWT format\", function () {",
+                  "    const body = pm.response.json();",
+                  "    const parts = body.token.split(\".\");",
+                  "    pm.expect(parts.length).to.equal(3);",
+                  "});",
+                  "",
+                  "// Save fresh token to environment",
+                  "const body = pm.response.json();",
+                  "if (body.token) {",
+                  "    pm.environment.set(\"authToken\", body.token);",
+                  "    console.log(\"AUTH-TC-002 | Token saved to environment\");",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jsmith@example.com\",\n  \"password\": \"Secure@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-003 | Register with duplicate email [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-003 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-003 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-003 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"message\");",
+                  "    pm.expect(body.message).to.include(\"email\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-003 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"jsmith_dupe\",\n  \"email\": \"jsmith@example.com\",\n  \"password\": \"Another@1234\",\n  \"phone\": \"08087654321\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-004 | Login with wrong password [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-004 | Status is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-004 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-004 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-004 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jsmith@example.com\",\n  \"password\": \"WrongPass!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-005 | Login with unregistered email [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-005 | Status is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-005 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-005 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-005 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ghost@nowhere.com\",\n  \"password\": \"Any@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-006 | Register with missing phone [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-006 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-006 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-006 | Validation error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-006 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"noPhone_user\",\n  \"email\": \"nophone@example.com\",\n  \"password\": \"Secure@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-007 | Register with empty body [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-007 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-007 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-007 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"message\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-007 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-008 | Register with invalid email format [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-008 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-008 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-008 | Validation error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-008 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"bademail_user\",\n  \"email\": \"not-an-email\",\n  \"password\": \"Secure@1234\",\n  \"phone\": \"08011112222\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-009 | Register with short phone number [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-009 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-009 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-009 | Validation error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"message\");",
+                  "    pm.expect(body.message).to.include(\"fields\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-009 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"short_phone\",\n  \"email\": \"shortphone@example.com\",\n  \"password\": \"Secure@1234\",\n  \"phone\": \"0801234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-010 | Login with empty body [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"AUTH-TC-010 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-010 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-010 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "pm.test(\"AUTH-TC-010 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AUTH-TC-002b | Login as regular user [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// AUTH-TC-002b | Login as regular non-admin user",
+                  "",
+                  "// Verify server returns 200 with valid credentials",
+                  "pm.test(\"AUTH-TC-002b | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"AUTH-TC-002b | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify token is returned",
+                  "pm.test(\"AUTH-TC-002b | Token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"token\");",
+                  "    pm.expect(body.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Save regular user token to environment for non-admin tests",
+                  "const body = pm.response.json();",
+                  "if (body.token) {",
+                  "    pm.environment.set(\"userToken\", body.token);",
+                  "    console.log(\"AUTH-TC-002b | Regular user token saved to userToken\");",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jmith@example.com\",\n  \"password\": \"Secure@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Products",
+      "item": [
+        {
+          "name": "PRD-TC-001 | Get all products [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-001 | Get all products - Public endpoint, no auth required",
+                  "",
+                  "// 1. Verify status code is 200",
+                  "pm.test(\"PRD-TC-001 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 2. Verify response is valid JSON",
+                  "pm.test(\"PRD-TC-001 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// 3. Verify response is an array of products",
+                  "pm.test(\"PRD-TC-001 | Response is an array\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// 4. GUARD TEST — Must have at least one product before we test anything else",
+                  "// Without this, tests below would skip silently and give FALSE POSITIVES",
+                  "// False positive = test says PASS but nothing was actually validated",
+                  "pm.test(\"PRD-TC-001 | Products catalogue is not empty\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// 5. Security check — countInStock must never be exposed publicly",
+                  "// This field is hidden via DB projection {countInStock: 0}",
+                  "// Only runs meaningfully now because test 4 guarantees array is not empty",
+                  "pm.test(\"PRD-TC-001 | countInStock is NOT exposed\", function () {",
+                  "    const body = pm.response.json();",
+                  "    body.forEach(product => {",
+                  "        pm.expect(product).to.not.have.property(\"countInStock\");",
+                  "    });",
+                  "});",
+                  "",
+                  "// 6. Confirm endpoint works without any Authorization header",
+                  "pm.test(\"PRD-TC-001 | No auth token required\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 7. Save first product ID to environment variable",
+                  "// This simulates what the frontend does — gets real product ID from API",
+                  "// Used automatically in PRD-TC-002, PRD-TC-003 etc",
+                  "const body = pm.response.json();",
+                  "if (body.length > 0) {",
+                  "    pm.environment.set(\"productId\", body[0]._id);",
+                  "    console.log(\"PRD-TC-001 | Product ID saved:\", body[0]._id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-002 | Add product to cart [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-002 | Add product to cart - Requires valid auth token",
+                  "",
+                  "// 1. Verify status code is 200",
+                  "pm.test(\"PRD-TC-002 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 2. Verify response is valid JSON",
+                  "pm.test(\"PRD-TC-002 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// 3. Verify success confirmation message is returned",
+                  "pm.test(\"PRD-TC-002 | Success message returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"messaged\");",
+                  "    pm.expect(body.messaged).to.equal(\"Added to cart.\");",
+                  "});",
+                  "",
+                  "// 4. Verify no error field in response",
+                  "pm.test(\"PRD-TC-002 | No error in response\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"error\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": [\"{{productId}}\"],\n  \"quantity\": [2]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-003 | Add product without auth token [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-003 | Add product without auth token - Should be rejected immediately",
+                  "",
+                  "// 1. Verify 401 is returned — no token means unauthorized",
+                  "pm.test(\"PRD-TC-003 | Status is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// 2. Verify response is valid JSON",
+                  "pm.test(\"PRD-TC-003 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// 3. Verify error message is present",
+                  "pm.test(\"PRD-TC-003 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// 4. Verify no cart was modified — no success message returned",
+                  "pm.test(\"PRD-TC-003 | No success message returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"messaged\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": [\"{{productId}}\"],\n  \"quantity\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-004 | Add product with invalid token [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-004 | Add product with tampered token - Should be rejected",
+                  "",
+                  "// 1. Verify 403 is returned — token present but invalid",
+                  "// 401 = no token, 403 = bad/tampered token",
+                  "pm.test(\"PRD-TC-004 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// 2. Verify response is valid JSON",
+                  "pm.test(\"PRD-TC-004 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// 3. Verify error message is present",
+                  "pm.test(\"PRD-TC-004 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// 4. Verify no cart was modified",
+                  "pm.test(\"PRD-TC-004 | No success message returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"messaged\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer INVALID.TOKEN.HERE",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": [\"{{productId}}\"],\n  \"quantity\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-005 | Add product with invalid productId [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-005 | Add product with invalid productId format",
+                  "",
+                  "// Check server rejects malformed ObjectId with correct status code",
+                  "pm.test(\"PRD-TC-005 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-005 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error key exists in response body",
+                  "pm.test(\"PRD-TC-005 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no cart or order was created with invalid product data",
+                  "pm.test(\"PRD-TC-005 | No success message returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"messaged\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": [\"not-a-valid-id\"],\n  \"quantity\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-006 | Non-admin update product [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-006 | Non-admin user attempts to update a product",
+                  "",
+                  "// Verify admin guard blocks non-admin users",
+                  "pm.test(\"PRD-TC-006 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-006 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify no product was modified",
+                  "pm.test(\"PRD-TC-006 | No product data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"price\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"price\": 9999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/product",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-007 | Admin updates product with invalid productId [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-007 | Admin updates product with invalid productId format",
+                  "",
+                  "// Verify server rejects malformed ObjectId before hitting database",
+                  "pm.test(\"PRD-TC-007 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-007 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"PRD-TC-007 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"message\");",
+                  "});",
+                  "",
+                  "// Verify no product data was modified",
+                  "pm.test(\"PRD-TC-007 | No product data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"price\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"INVALID_ID_XYZ\",\n  \"name\": \"Oud Royal\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/product",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-008 | Admin updates non-existent product [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-008 | Admin updates product that does not exist in database",
+                  "",
+                  "// Verify server returns 404 when product is not found",
+                  "pm.test(\"PRD-TC-008 | Status is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-008 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify not found message is returned",
+                  "pm.test(\"PRD-TC-008 | Not found message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"message\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"000000000000000000000001\",\n  \"name\": \"Ghost Product\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/product",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-008b | Admin updates product successfully [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-008b | Admin successfully updates an existing product",
+                  "",
+                  "// Verify server returns 200 on successful update",
+                  "pm.test(\"PRD-TC-008b | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-008b | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify updated product is returned in response",
+                  "pm.test(\"PRD-TC-008b | Updated product returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"productName\");",
+                  "});",
+                  "",
+                  "// Verify price was actually updated to new value",
+                  "pm.test(\"PRD-TC-008b | Price updated correctly\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.price).to.equal(20000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"price\": 20000,\n  \"description\": \"Updated classic floral fragrance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/product",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-009 | Add product with quantity 0 [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-009 | Add product with quantity 0 - Should be rejected",
+                  "",
+                  "// Verify server rejects quantity 0 as invalid business logic",
+                  "pm.test(\"PRD-TC-009 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-009 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"PRD-TC-009 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no order was created with zero quantity",
+                  "pm.test(\"PRD-TC-009 | No success message returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"messaged\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": [\"{{productId}}\"],\n  \"quantity\": [0]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PRD-TC-010 | Mismatched productId and quantity arrays [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// PRD-TC-010 | Mismatched productId and quantity array lengths",
+                  "",
+                  "// Verify server rejects mismatched arrays with 400",
+                  "pm.test(\"PRD-TC-010 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"PRD-TC-010 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message explains the mismatch",
+                  "pm.test(\"PRD-TC-010 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no order was created with mismatched data",
+                  "pm.test(\"PRD-TC-010 | No success message returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"messaged\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": [\"{{productId}}\", \"000000000000000000000001\"],\n  \"quantity\": [3]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Cart",
+      "item": [
+        {
+          "name": "CRT-TC-001 | Get cart authenticated user [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-001 | Get cart for authenticated user",
+                  "",
+                  "// Verify server returns 200 with cart data",
+                  "pm.test(\"CRT-TC-001 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"CRT-TC-001 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify userCart object is present in response",
+                  "pm.test(\"CRT-TC-001 | userCart object present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"userCart\");",
+                  "});",
+                  "",
+                  "// Verify countInStock is not exposed — skip null productIds",
+                  "pm.test(\"CRT-TC-001 | countInStock not exposed in cart\", function () {",
+                  "    const body = pm.response.json();",
+                  "    if (body.userCart && body.userCart.orderItems) {",
+                  "        body.userCart.orderItems.forEach(order => {",
+                  "            if (order.products) {",
+                  "                order.products.forEach(product => {",
+                  "                    if (product.productId !== null) {",
+                  "                        pm.expect(product.productId).to.not.have.property(\"countInStock\");",
+                  "                    }",
+                  "                });",
+                  "            }",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CRT-TC-002 | Get cart without auth token [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-002 | Get cart without auth token",
+                  "",
+                  "// Verify server rejects request with no token",
+                  "pm.test(\"CRT-TC-002 | Status is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"CRT-TC-002 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"CRT-TC-002 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no cart data is exposed",
+                  "pm.test(\"CRT-TC-002 | No cart data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"userCart\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CRT-TC-003 | Get cart with tampered token [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-003 | Get cart with tampered token",
+                  "",
+                  "// Verify server rejects tampered token with 403",
+                  "pm.test(\"CRT-TC-003 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"CRT-TC-003 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"CRT-TC-003 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no cart data is exposed to invalid token",
+                  "pm.test(\"CRT-TC-003 | No cart data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"userCart\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer TAMPERED.TOKEN.HERE",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CRT-TC-004 | Get cart for user with empty cart [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-004 | Get cart for brand new user with no items added",
+                  "",
+                  "// Verify server returns 200 for empty cart",
+                  "pm.test(\"CRT-TC-004 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "",
+                  "// Verify response has a body — not empty",
+                  "// BUG: Empty cart returns no response body at all",
+                  "pm.test(\"CRT-TC-004 | Response body is not empty\", function () {",
+                  "    const responseText = pm.response.text();",
+                  "    pm.expect(responseText).to.not.be.empty;",
+                  "});",
+                  "",
+                  "",
+                  "// Verify response is valid JSON",
+                  "pm.test(\"CRT-TC-004 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CRT-TC-005 | Checkout with valid product [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-005 | Checkout with valid product and auth token",
+                  "",
+                  "// Verify server returns 200 with Stripe checkout URL",
+                  "pm.test(\"CRT-TC-005 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"CRT-TC-005 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify Stripe checkout URL is returned",
+                  "pm.test(\"CRT-TC-005 | Checkout URL present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"url\");",
+                  "    pm.expect(body.url).to.include(\"checkout.stripe.com\");",
+                  "});",
+                  "",
+                  "// Verify URL is a valid string and not empty",
+                  "pm.test(\"CRT-TC-005 | Checkout URL is valid string\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.url).to.be.a(\"string\").and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/create-checkout-session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "create-checkout-session"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CRT-TC-006 | Checkout without auth token [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-006 | Checkout without auth token",
+                  "",
+                  "// Verify server rejects unauthenticated checkout request",
+                  "pm.test(\"CRT-TC-006 | Status is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"CRT-TC-006 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"CRT-TC-006 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no Stripe session was created",
+                  "pm.test(\"CRT-TC-006 | No checkout URL returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"url\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/create-checkout-session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "create-checkout-session"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CRT-TC-007 | Checkout with non-existent productId [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// CRT-TC-007 | Checkout with non-existent productId",
+                  "",
+                  "// Verify server returns 400 when no valid products found",
+                  "pm.test(\"CRT-TC-007 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"CRT-TC-007 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"CRT-TC-007 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"message\");",
+                  "});",
+                  "",
+                  "// Verify no Stripe checkout URL was created",
+                  "pm.test(\"CRT-TC-007 | No checkout URL returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"url\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    {\n      \"productId\": \"000000000000000000000001\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/create-checkout-session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "create-checkout-session"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Users",
+      "item": [
+        {
+          "name": "USR-TC-001 | Admin get all users - password not exposed [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-001 | Status check",
+                  "pm.test(\"USR-TC-001 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// USR-TC-001 | Response is JSON",
+                  "pm.test(\"USR-TC-001 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// USR-TC-001 | Response is array",
+                  "pm.test(\"USR-TC-001 | Response body is an array\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// USR-TC-001 | Password must NOT exist",
+                  "pm.test(\"USR-TC-001 | Password is excluded from all users\", function () {",
+                  "    const body = pm.response.json();",
+                  "",
+                  "    body.forEach(user => {",
+                  "        pm.expect(user).to.not.have.property(\"password\");",
+                  "    });",
+                  "});",
+                  "",
+                  "// USR-TC-001 |  ensure at least 1 user returned",
+                  "pm.test(\"USR-TC-001 | Response is not empty\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-002 | Admin get newest 5 users [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-002 | Admin retrieves newest 5 users using ?new=true",
+                  "",
+                  "// Verify server returns 200 for admin request",
+                  "pm.test(\"USR-TC-002 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-002 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify response is an array",
+                  "pm.test(\"USR-TC-002 | Response is an array\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// Verify maximum 5 users returned",
+                  "pm.test(\"USR-TC-002 | Maximum 5 users returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.be.at.most(5);",
+                  "});",
+                  "",
+                  "// Security check — password must not be returned",
+                  "pm.test(\"USR-TC-002 | Password not exposed\", function () {",
+                  "    const body = pm.response.json();",
+                  "    body.forEach(user => {",
+                  "        pm.expect(user).to.not.have.property(\"password\");",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users?new=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "new",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-003 | Admin get single user [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-003 | Admin retrieves a single user by ID",
+                  "",
+                  "// Verify server returns 200 for valid user ID",
+                  "pm.test(\"USR-TC-003 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-003 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify username is present in response",
+                  "pm.test(\"USR-TC-003 | User data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"username\");",
+                  "});",
+                  "",
+                  "// Security check — password must not be returned for single user",
+                  "pm.test(\"USR-TC-003 | Password not exposed\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"password\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-004 | User updates own username [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-004 | Authenticated user updates their own username",
+                  "",
+                  "// Verify server returns 200 on successful update",
+                  "pm.test(\"USR-TC-004 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-004 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify updated username is returned in response",
+                  "pm.test(\"USR-TC-004 | Updated username returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"username\");",
+                  "    pm.expect(body.username).to.equal(\"jsmith_updated\");",
+                  "});",
+                  "",
+                  "// Verify password is not returned in update response",
+                  "pm.test(\"USR-TC-004 | Password not exposed\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"password\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"jsmith_updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-005 | Non-admin cannot access user list [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-005 | Non-admin user attempts to access user list",
+                  "",
+                  "// Verify server blocks non-admin with 403",
+                  "pm.test(\"USR-TC-005 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-005 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify no user data is returned",
+                  "pm.test(\"USR-TC-005 | No user data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-006 — Invalid user ID format",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-006 | Admin requests user with invalid ObjectId format",
+                  "",
+                  "// Verify server returns 400 for malformed ID",
+                  "pm.test(\"USR-TC-006 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-006 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"USR-TC-006 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.deep.equal({});",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/not-a-valid-id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "not-a-valid-id"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-007 | User A deletes User B account [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-007 | Regular user attempts to delete another user's account",
+                  "",
+                  "// Verify server blocks cross-user deletion with 403",
+                  "pm.test(\"USR-TC-007 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-007 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify no confirmation of deletion returned",
+                  "pm.test(\"USR-TC-007 | No deletion confirmation returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.deep.equal({});",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-008 | User deletes own account [POSITIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-008 | User deletes their own account",
+                  "",
+                  "// Verify server returns 200 on successful deletion",
+                  "pm.test(\"USR-TC-008 | Status is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-008 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify deletion confirmation message returned",
+                  "pm.test(\"USR-TC-008 | Deletion confirmed\", function () {",
+                  "    const text = pm.response.text();",
+                  "    pm.expect(text).to.include(\"deleted\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "USR-TC-009 | User attempts privilege escalation [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// USR-TC-009 | User attempts to set isAdmin true on own account",
+                  "",
+                  "// Verify server rejects or ignores isAdmin field",
+                  "pm.test(\"USR-TC-009 | Status is 403 or isAdmin ignored\", function () {",
+                  "    const status = pm.response.code;",
+                  "    pm.expect([200, 403]).to.include(status);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"USR-TC-009 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify isAdmin is NOT true in response",
+                  "pm.test(\"USR-TC-009 | isAdmin not elevated to true\", function () {",
+                  "    const body = pm.response.json();",
+                  "    if (body.isAdmin !== undefined) {",
+                  "        pm.expect(body.isAdmin).to.equal(false);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isAdmin\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Security & Middleware",
+      "item": [
+        {
+          "name": "SEC-TC-001 | Auth header without Bearer prefix [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// SEC-TC-001 | Authorization header present but missing Bearer prefix",
+                  "",
+                  "// Verify server rejects request without Bearer prefix",
+                  "pm.test(\"SEC-TC-001 | Status is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"SEC-TC-001 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"SEC-TC-001 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no data is returned",
+                  "pm.test(\"SEC-TC-001 | No cart data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"userCart\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEC-TC-002 | Tampered JWT token [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// SEC-TC-002 | JWT with tampered payload - signature mismatch",
+                  "",
+                  "// Verify server rejects tampered token with 403",
+                  "pm.test(\"SEC-TC-002 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"SEC-TC-002 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify error message is returned",
+                  "pm.test(\"SEC-TC-002 | Error message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property(\"error\");",
+                  "});",
+                  "",
+                  "// Verify no data is returned",
+                  "pm.test(\"SEC-TC-002 | No cart data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"userCart\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.TAMPERED.signature",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEC-TC-003 | Non-admin accesses admin endpoint [NEGATIVE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// SEC-TC-003 | Non-admin token used on admin-only endpoint",
+                  "",
+                  "// Verify server blocks non-admin with 403",
+                  "pm.test(\"SEC-TC-003 | Status is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"SEC-TC-003 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify access denied message returned",
+                  "pm.test(\"SEC-TC-003 | Access denied message present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// Verify no user data exposed",
+                  "pm.test(\"SEC-TC-003 | No user data returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEC-TC-004 | Brute force login attempts [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// SEC-TC-004 | Brute force protection - 10 consecutive wrong password attempts",
+                  "",
+                  "// Verify current request returns 400",
+                  "pm.test(\"SEC-TC-004 | Status is 400 for wrong password\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"SEC-TC-004 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify no token returned",
+                  "pm.test(\"SEC-TC-004 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});",
+                  "",
+                  "// Send 9 more requests and check if rate limiting kicks in",
+                  "let attempts = 0;",
+                  "let blocked = false;",
+                  "",
+                  "const sendRequest = () => {",
+                  "    pm.sendRequest({",
+                  "        url: pm.environment.get(\"base_url\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ email: \"jsmith@example.com\", password: \"WrongPass!\" })",
+                  "        }",
+                  "    }, (err, res) => {",
+                  "        attempts++;",
+                  "        if (res.code === 429) blocked = true;",
+                  "        if (attempts === 9) {",
+                  "            pm.test(\"SEC-TC-004 | Rate limiting blocks after repeated failures\", function () {",
+                  "                pm.expect(blocked).to.be.true;",
+                  "            });",
+                  "        } else {",
+                  "            sendRequest();",
+                  "        }",
+                  "    });",
+                  "};",
+                  "",
+                  "sendRequest();"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jsmith@example.com\",\n  \"password\": \"WrongPass!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEC-TC-005 | Login without Content-Type header [EDGE]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// SEC-TC-005 | POST request without Content-Type header",
+                  "",
+                  "// Verify server returns 400 when body cannot be parsed",
+                  "pm.test(\"SEC-TC-005 | Status is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Verify response body is parseable JSON",
+                  "pm.test(\"SEC-TC-005 | Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Verify no token returned",
+                  "pm.test(\"SEC-TC-005 | No token returned\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.not.have.property(\"token\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "content-type": true
+            }
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"jsmith@example.com\",\"password\":\"Secure@1234\"}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "authToken",
+      "value": ""
+    }
+  ]
+}

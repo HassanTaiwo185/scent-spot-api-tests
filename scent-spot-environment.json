@@ -1,0 +1,40 @@
+{
+  "id": "442ff485-f40d-4ef5-a323-787771fd4f74",
+  "name": "Scent Spot API",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "any",
+      "enabled": true
+    },
+    {
+      "key": "productId",
+      "value": "69f7a619040af6af8f4bbfda",
+      "type": "any",
+      "enabled": true
+    },
+    {
+      "key": "userId",
+      "value": "69f69ae154a2e2dff31a39be",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userToken",
+      "value": "",
+      "type": "any",
+      "enabled": true
+    }
+  ],
+  "color": null,
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-05-05T23:36:25.817Z",
+  "_postman_exported_using": "Postman/12.9.2-260505-0232"
+}
