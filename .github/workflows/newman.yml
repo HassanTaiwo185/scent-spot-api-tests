@@ -30,7 +30,6 @@ jobs:
           -r cli,htmlextra \
           --reporter-htmlextra-export ./reports/scent-spot-report.html \
           --reporter-htmlextra-title "Scent Spot API Test Report" \
-          --suppress-exit-code
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
