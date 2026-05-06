@@ -4,7 +4,7 @@
   "values": [
     {
       "key": "base_url",
-      "value": "PLACEHOLDER",
+      "value": "",
       "type": "default",
       "enabled": true
     },
@@ -16,13 +16,13 @@
     },
     {
       "key": "productId",
-      "value": "PLACEHOLDER",
+      "value": "",
       "type": "any",
       "enabled": true
     },
     {
       "key": "userId",
-      "value": "PLACEHOLDER",
+      "value": "",
       "type": "default",
       "enabled": true
     },
