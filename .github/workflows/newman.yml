@@ -9,7 +9,7 @@ on:
 jobs:
   newman-tests:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,9 +27,12 @@ jobs:
         run: |
           newman run scent-spot-collection.json \
           -e scent-spot-environment.json \
+          --env-var "base_url=${{ secrets.RAILWAY_PROD_URL }}" \
+          --env-var "productId=${{ secrets.PRODUCT_ID }}" \
+          --env-var "userId=${{ secrets.USER_ID }}" \
           -r cli,htmlextra \
           --reporter-htmlextra-export ./reports/scent-spot-report.html \
-          --reporter-htmlextra-title "Scent Spot API Test Report" \
+          --reporter-htmlextra-title "Scent Spot API Test Report"
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4

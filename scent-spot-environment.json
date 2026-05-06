@@ -4,7 +4,7 @@
   "values": [
     {
       "key": "base_url",
-      "value": "https://scent-spot-backend-production.up.railway.app",
+      "value": "PLACEHOLDER",
       "type": "default",
       "enabled": true
     },
@@ -16,13 +16,13 @@
     },
     {
       "key": "productId",
-      "value": "69f7a619040af6af8f4bbfda",
+      "value": "PLACEHOLDER",
       "type": "any",
       "enabled": true
     },
     {
       "key": "userId",
-      "value": "69f69ae154a2e2dff31a39be",
+      "value": "PLACEHOLDER",
       "type": "default",
       "enabled": true
     },
