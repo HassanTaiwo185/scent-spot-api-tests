@@ -24,16 +24,13 @@ jobs:
           npm install -g newman newman-reporter-htmlextra
 
       - name: Run Newman tests
-        env:
-          BASE_URL: ${{ secrets.RAILWAY_PROD_URL }}
-          PRODUCT_ID: ${{ secrets.PRODUCT_ID }}
-          USER_ID: ${{ secrets.USER_ID }}
         run: |
           newman run scent-spot-collection.json \
-          -e scent-spot-environment.json \
-          --env-var "base_url=$BASE_URL" \
-          --env-var "productId=$PRODUCT_ID" \
-          --env-var "userId=$USER_ID" \
+          --env-var "base_url=${{ secrets.RAILWAY_PROD_URL }}" \
+          --env-var "productId=${{ secrets.PRODUCT_ID }}" \
+          --env-var "userId=${{ secrets.USER_ID }}" \
+          --env-var "authToken=" \
+          --env-var "userToken=" \
           -r cli,htmlextra \
           --reporter-htmlextra-export ./reports/scent-spot-report.html \
           --reporter-htmlextra-title "Scent Spot API Test Report"
