@@ -1,0 +1,40 @@
+name: Scent Spot API - Newman Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  newman-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Newman and HTML reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Newman tests
+        run: |
+          newman run scent-spot-collection.json \
+          -e scent-spot-environment.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export ./reports/scent-spot-report.html \
+          --reporter-htmlextra-title "Scent Spot API Test Report" \
+          --suppress-exit-code
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: newman-report
+          path: ./reports/scent-spot-report.html
