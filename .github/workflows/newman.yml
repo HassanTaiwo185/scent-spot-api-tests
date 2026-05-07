@@ -29,8 +29,12 @@ jobs:
           --env-var "base_url=${{ secrets.RAILWAY_PROD_URL }}" \
           --env-var "productId=${{ secrets.PRODUCT_ID }}" \
           --env-var "userId=${{ secrets.USER_ID }}" \
+          --env-var "adminEmail=${{ secrets.ADMIN_EMAIL }}" \
+          --env-var "adminPassword=${{ secrets.ADMIN_PASSWORD }}" \
           --env-var "authToken=" \
           --env-var "userToken=" \
+          --env-var "testEmail=" \
+          --env-var "testUsername=" \
           -r cli,htmlextra \
           --reporter-htmlextra-export ./reports/scent-spot-report.html \
           --reporter-htmlextra-title "Scent Spot API Test Report"
