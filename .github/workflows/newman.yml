@@ -47,3 +47,16 @@ jobs:
         with:
           name: newman-report
           path: ./reports/scent-spot-report.html
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: test-staging
+    steps:
+      - name: Trigger Railway Production Deploy
+        run: |
+          curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"query":"mutation { deploymentCreate(input: { serviceId: \"fb46888b-4798-4ad1-a279-07842dc97498\", environmentId: \"e78174f0-a681-4d02-a770-3d30d0b01320\" }) { id } }"}' \
+          https://backboard.railway.app/graphql/v2
